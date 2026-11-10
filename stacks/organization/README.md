@@ -26,15 +26,19 @@ No modules.
 | [aws_organizations_organization.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/organizations_organization) | resource |
 | [aws_organizations_organizational_unit.security](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/organizations_organizational_unit) | resource |
 | [aws_organizations_organizational_unit.workloads](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/organizations_organizational_unit) | resource |
+| [aws_organizations_policy.scp](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/organizations_policy) | resource |
+| [aws_organizations_policy_attachment.root](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/organizations_policy_attachment) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 | ---- | ----------- | ---- | ------- | :------: |
+| <a name="input_allowed_regions"></a> [allowed\_regions](#input\_allowed\_regions) | The only regions member accounts may use. Everything else is denied by a service control policy. Include the home region. | `list(string)` | <pre>[<br/>  "us-east-1",<br/>  "us-west-2"<br/>]</pre> | no |
 | <a name="input_home_region"></a> [home\_region](#input\_home\_region) | The organization's home region. AWS Organizations is a global service, but its API is served from us-east-1. | `string` | `"us-east-1"` | no |
 | <a name="input_member_accounts"></a> [member\_accounts](#input\_member\_accounts) | The member accounts to create, keyed by a short role name.<br/>Every account needs its own, globally unique root email address. In real use<br/>employ plus-addressing on a mailbox you control, e.g. you+log-archive@example.com. | <pre>map(object({<br/>    name  = string<br/>    email = string<br/>    ou    = string<br/>  }))</pre> | <pre>{<br/>  "log_archive": {<br/>    "email": "aws-log-archive@example.com",<br/>    "name": "log-archive",<br/>    "ou": "security"<br/>  },<br/>  "security": {<br/>    "email": "aws-security@example.com",<br/>    "name": "security",<br/>    "ou": "security"<br/>  },<br/>  "workloads_dev": {<br/>    "email": "aws-workloads-dev@example.com",<br/>    "name": "workloads-dev",<br/>    "ou": "workloads"<br/>  },<br/>  "workloads_prod": {<br/>    "email": "aws-workloads-prod@example.com",<br/>    "name": "workloads-prod",<br/>    "ou": "workloads"<br/>  }<br/>}</pre> | no |
 | <a name="input_mock_mode"></a> [mock\_mode](#input\_mock\_mode) | true = fake credentials and no calls to AWS (offline plan). false for a real deployment. | `bool` | `true` | no |
 | <a name="input_project"></a> [project](#input\_project) | Project name, used in tags. | `string` | `"landing-zone"` | no |
+| <a name="input_security_admin_role_name"></a> [security\_admin\_role\_name](#input\_security\_admin\_role\_name) | The one role allowed to change the security services (CloudTrail, Config,<br/>GuardDuty, Security Hub) that the baseline policy protects. Terraform uses it<br/>to manage them. Production setups use a dedicated, tightly controlled role. | `string` | `"OrganizationAccountAccessRole"` | no |
 
 ## Outputs
 
@@ -44,4 +48,5 @@ No modules.
 | <a name="output_organization_id"></a> [organization\_id](#output\_organization\_id) | ID of the organization. |
 | <a name="output_ou_ids"></a> [ou\_ids](#output\_ou\_ids) | IDs of the organizational units, keyed by short name. Policies attach to these. |
 | <a name="output_root_id"></a> [root\_id](#output\_root\_id) | ID of the organization root. Policies attached here apply to every account. |
+| <a name="output_scp_ids"></a> [scp\_ids](#output\_scp\_ids) | IDs of the service control policies, keyed by name. |
 <!-- END_TF_DOCS -->

@@ -83,3 +83,36 @@ variable "member_accounts" {
     error_message = "Account names must be 1 to 50 characters."
   }
 }
+
+variable "allowed_regions" {
+  description = "The only regions member accounts may use. Everything else is denied by a service control policy. Include the home region."
+  type        = list(string)
+  default     = ["us-east-1", "us-west-2"]
+
+  validation {
+    condition     = length(var.allowed_regions) >= 1 && alltrue([for r in var.allowed_regions : can(regex("^[a-z]{2}-[a-z]+-[0-9]$", r))])
+    error_message = "allowed_regions must list at least one valid region name, such as us-east-1."
+  }
+
+  # The Organizations API itself is served from the home region. Locking the
+  # accounts out of it would make the organization impossible to manage.
+  validation {
+    condition     = contains(var.allowed_regions, var.home_region)
+    error_message = "allowed_regions must include home_region."
+  }
+}
+
+variable "security_admin_role_name" {
+  description = <<-EOT
+    The one role allowed to change the security services (CloudTrail, Config,
+    GuardDuty, Security Hub) that the baseline policy protects. Terraform uses it
+    to manage them. Production setups use a dedicated, tightly controlled role.
+  EOT
+  type        = string
+  default     = "OrganizationAccountAccessRole"
+
+  validation {
+    condition     = can(regex("^[A-Za-z0-9+=,.@_-]{1,64}$", var.security_admin_role_name))
+    error_message = "security_admin_role_name must be a valid IAM role name (1 to 64 characters)."
+  }
+}

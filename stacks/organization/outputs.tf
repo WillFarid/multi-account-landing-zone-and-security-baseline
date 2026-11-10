@@ -21,3 +21,8 @@ output "account_ids" {
   description = "IDs of the member accounts, keyed by role. The baseline stack needs them to assume a role in each account."
   value       = { for key, account in aws_organizations_account.member : key => account.id }
 }
+
+output "scp_ids" {
+  description = "IDs of the service control policies, keyed by name."
+  value       = { for key, policy in aws_organizations_policy.scp : key => policy.id }
+}
